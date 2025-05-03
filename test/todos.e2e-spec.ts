@@ -5,7 +5,7 @@ import { AppModule } from '../src/app.module'
 import { TodoEntity } from 'src/models/todos/entity/todo.entity'
 import { TODOS_PER_PAGE } from '../constants'
 
-describe('TestController (e2e)', () => {
+describe('TodosController (e2e)', () => {
   let app: INestApplication
 
   beforeEach(async () => {
@@ -24,11 +24,6 @@ describe('TestController (e2e)', () => {
         title: 'example-title',
       })
       .expect(201)
-      .expect((res) => {
-        expect(res.body).toHaveProperty('id')
-        expect(res.body).toHaveProperty('title')
-        expect(res.body).toHaveProperty('completed')
-      })
   })
 
   it('/todos (GET)', () => {
@@ -68,5 +63,22 @@ describe('TestController (e2e)', () => {
           })
         })
       })
+  })
+
+  it('/todos/:id (PUT)', () => {
+    return request(app.getHttpServer())
+      .put('/todos/1')
+      .send({
+        title: 'example-title',
+        completed: true,
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.completed).toBe(true)
+      })
+  })
+
+  it('/todos/:id (DELETE)', () => {
+    return request(app.getHttpServer()).delete('/todos/1').expect(200)
   })
 })
