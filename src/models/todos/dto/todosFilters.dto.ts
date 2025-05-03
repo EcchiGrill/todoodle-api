@@ -1,12 +1,12 @@
 import { Type } from 'class-transformer'
-import { IsOptional } from 'class-validator'
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator'
 
 export class TodosFiltersDto {
   @IsOptional()
-  @Type(() => Number)
+  @IsNumber()
   page?: number
 
   @IsOptional()
-  @Type(() => Boolean)
+  @IsBoolean()
   completed?: boolean
 }

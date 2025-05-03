@@ -3,31 +3,40 @@ import { PrismaService } from '../../prisma/prisma.service'
 import { CreateTodoDto } from './dto/createTodo.dto'
 import { TodosFiltersDto } from './dto/todosFilters.dto'
 import { TODOS_PER_PAGE } from '../../../constants'
+import { EditTodoDto } from './dto/editTodo.dto'
 
 @Injectable()
 export class TodosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  getTodos({ completed = false, page = 1 }: TodosFiltersDto) {
-    return completed
-      ? this.prisma.todo.findMany({
-          take: TODOS_PER_PAGE,
-          skip: (page - 1) * TODOS_PER_PAGE,
-          where: {
-            completed: {
-              equals: true,
-            },
-          },
-        })
-      : this.prisma.todo.findMany({
-          take: TODOS_PER_PAGE,
-          skip: (page - 1) * TODOS_PER_PAGE,
-        })
+  getTodos({ completed, page }: TodosFiltersDto) {
+    return this.prisma.todo.findMany({
+      take: TODOS_PER_PAGE,
+      skip: (page - 1) * TODOS_PER_PAGE,
+      where: {
+        ...(completed !== undefined && {
+          completed,
+        }),
+      },
+    })
   }
 
   createTodo(data: CreateTodoDto) {
     return this.prisma.todo.create({
       data,
+    })
+  }
+
+  editTodo(id: number, data: EditTodoDto) {
+    return this.prisma.todo.update({
+      where: { id },
+      data,
+    })
+  }
+
+  deleteTodo(id: number) {
+    return this.prisma.todo.delete({
+      where: { id },
     })
   }
 }
