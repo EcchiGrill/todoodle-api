@@ -1,12 +1,15 @@
 # Use Node.js base image
 FROM node:23-alpine
 
+# Adding OpenSSl 
+RUN apk add --no-cache openssl
+
 # Set working directory
 WORKDIR /usr/src/app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the application files
 COPY . .
@@ -21,4 +24,4 @@ RUN npm run build
 EXPOSE 4200
 
 # Start the application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
