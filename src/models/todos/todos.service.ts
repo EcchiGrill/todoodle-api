@@ -9,7 +9,7 @@ import { EditTodoDto } from './dto/editTodo.dto'
 export class TodosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  getTodos({ completed, page }: TodosFiltersDto) {
+  async getTodos(userId: string, { completed, page }: TodosFiltersDto) {
     return this.prisma.todo.findMany({
       take: TODOS_PER_PAGE,
       skip: (page - 1) * TODOS_PER_PAGE,
@@ -17,24 +17,28 @@ export class TodosService {
         ...(completed !== undefined && {
           completed,
         }),
+        userId,
       },
     })
   }
 
-  createTodo(data: CreateTodoDto) {
+  async createTodo(userId: string, body: CreateTodoDto) {
     return this.prisma.todo.create({
-      data,
+      data: {
+        userId,
+        ...body,
+      },
     })
   }
 
-  editTodo(id: number, data: EditTodoDto) {
+  async editTodo(id: number, data: EditTodoDto) {
     return this.prisma.todo.update({
       where: { id },
       data,
     })
   }
 
-  deleteTodo(id: number) {
+  async deleteTodo(id: number) {
     return this.prisma.todo.delete({
       where: { id },
     })

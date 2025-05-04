@@ -10,10 +10,13 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
@@ -24,10 +27,13 @@ import { TodoEntity } from './entity/todo.entity'
 import { TodosService } from './todos.service'
 import { CreateTodoDto } from './dto/createTodo.dto'
 import { EditTodoDto } from './dto/editTodo.dto'
+import { JwtGuard } from '../../auth/guards/jwt.guard'
 
 @ApiTags('Todos')
 @Controller('todos')
 @UsePipes(new ValidationPipe())
+@ApiBearerAuth('Authorization')
+@UseGuards(JwtGuard)
 export class TodosController {
   constructor(private readonly service: TodosService) {}
 
@@ -39,11 +45,12 @@ export class TodosController {
   @ApiQuery({ name: '_page', required: false, type: Number })
   @ApiQuery({ name: 'completed', required: false, type: Boolean })
   getTodos(
+    @Request() req: { userId: string },
     @Query('_page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('completed', new ParseBoolPipe({ optional: true }))
     completed?: boolean,
   ) {
-    return this.service.getTodos({
+    return this.service.getTodos(req.userId, {
       page,
       completed,
     })
@@ -54,8 +61,8 @@ export class TodosController {
     type: TodoEntity,
   })
   @Post()
-  createTodo(@Body() body: CreateTodoDto) {
-    return this.service.createTodo(body)
+  createTodo(@Request() req: { userId: string }, @Body() body: CreateTodoDto) {
+    return this.service.createTodo(req.userId, body)
   }
 
   @ApiOkResponse({
